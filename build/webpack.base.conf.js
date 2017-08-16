@@ -17,14 +17,25 @@ module.exports = {
     publicPath: process.env.NODE_ENV === 'production' ? config.build.assetsPublicPath : config.dev.assetsPublicPath
   },
   resolve: {
-    extensions: ['.js', '.vue', '.json', '.scss'],
+    extensions: ['.js', '.vue', '.json'],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js',
-      '@': resolve('src')
+      '@': resolve('src'),
+      'common': resolve('src/common'),
+      'components': resolve('src/components'),
+      'api': resolve('src/api'),
+      'base': resolve('src/base')
     }
   },
   module: {
     rules: [{
+      test: /\.(js|vue)$/,
+      loader: 'eslint-loader',
+      enforce: 'pre',
+      include: [resolve('src'), resolve('test')],
+      options: {
+        formatter: require('eslint-friendly-formatter')
+      }
+    }, {
       test: /\.vue$/,
       loader: 'vue-loader',
       options: vueLoaderConfig
@@ -38,13 +49,6 @@ module.exports = {
       options: {
         limit: 10000,
         name: utils.assetsPath('img/[name].[hash:7].[ext]')
-      }
-    }, {
-      test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-      loader: 'url-loader',
-      options: {
-        limit: 10000,
-        name: utils.assetsPath('media/[name].[hash:7].[ext]')
       }
     }, {
       test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
