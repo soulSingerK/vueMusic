@@ -1,13 +1,13 @@
 <template>
   <div class="m-header">
     <div class="icon"></div>
-    <h1 class="text">Chicken Music</h1>
+    <h1 class="text">W-L Music</h1>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   export default {}
-</script>
+</script> 
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"

@@ -1,12 +1,12 @@
 <template>
   <div class="recommend">
-    <scroll class="recommend-content" :data="discList">
+    <scroll class="recommend-content" :data="discList" ref="scroll">
       <div>
         <div class="slider-wrapper" v-if="recommends.length">
           <slider>
             <div v-for="item in recommends">
               <a :href="item.linkUrl">
-                <img class="class" :src="item.picUrl"></img>
+                <img class="class" :src="item.picUrl" @load="imgLoad"></img>
               </a>
             </div>
           </slider>
@@ -16,7 +16,7 @@
           <ul>
             <li class="item" v-for="item in discList">
               <div class="icon">
-                <img :src="item.imgurl" height="60" width="60" />
+                <img v-lazy="item.imgurl" height="60" width="60" />
               </div>
               <div class="text">
                 <h2 class="name" v-html="item.creator.name"></h2>
@@ -25,6 +25,9 @@
             </li>
           </ul>
         </div>
+      </div>
+      <div class="loading-container" v-show="!discList.length">
+        <loading></loading>
       </div>
     </scroll>
   </div>
@@ -35,6 +38,7 @@ import Scroll from 'base/scroll/scroll'
 import {getRecommend, getDiscList} from 'api/getRecommend'
 import {ERR_OK} from 'api/config'
 import slider from 'base/slider/slider'
+import Loading from 'base/loading/loading'
 export default {
   data() {
     return {
@@ -60,11 +64,15 @@ export default {
           this.discList = res.data.list
         }
       })
+    },
+    imgLoad() {
+      this.$refs.scroll.refresh()
     }
   },
   components: {
     slider,
-    Scroll
+    Scroll,
+    Loading
   }
 }
 </script>
