@@ -28,18 +28,25 @@
           </div>
         </div>
         <div class="bottom">
+          <div class="progress-wrapper">
+            <span class="time time-l">{{formatTime(currentTime)}}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent" @changePercent="changePercent"></progress-bar>
+            </div>
+            <span class="time time-r">{{formatTime(currentSong.duration)}}</span>
+          </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left">
-              <i class="icon-prev"></i>
+            <div class="icon i-left" :class="disabcls">
+              <i class="icon-prev" @click="prev"></i>
             </div>
-            <div class="icon i-center">
+            <div class="icon i-center" :class="disabcls">
               <i :class="iconState" @click="changePlaying"></i>
             </div>
-            <div class="icon icon-right">
-              <i class="icon-next"></i>
+            <div class="icon icon-right" :class="disabcls">
+              <i class="icon-next" @click="next"></i>
             </div>
             <div class="icon icon-right">
               <i class="icon icon-not-favorite"></i>
@@ -65,16 +72,23 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="readyPlay" @error="error" @timeupdate="timeupdate"></audio>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import {mapGetters, mapMutations} from 'vuex'
 import {profixStyle} from 'common/js/dom'
+import progressBar from 'base/progress-bar/progress-bar'
 import animations from 'create-keyframe-animation'
 const transform = profixStyle('transform')
 export default {
+  data() {
+    return {
+      songReady: false,
+      currentTime: 0
+    }
+  },
   mounted() {
 
   },
@@ -143,9 +157,70 @@ export default {
     changePlaying() {
       this.changePlayingState(!this.playing)
     },
+    prev() {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex - 1
+      if (index === -1) {
+        index = this.playlist.length - 1
+      }
+      if (!this.playing) {
+        this.changePlaying()
+      }
+      this.changeCurrentIndex(index)
+      this.songReady = false
+    },
+    next() {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex + 1
+      if (index === this.playlist.length) {
+        index = 0
+      }
+      if (!this.playing) {
+        this.changePlaying()
+      }
+      this.changeCurrentIndex(index)
+      this.songReady = false
+    },
+    readyPlay() {
+      if (this.playing) {
+        this.$refs.audio.play()
+      }
+      this.songReady = true
+    },
+    error() {
+      this.songReady = true
+    },
+    timeupdate(e) {
+      this.currentTime = e.target.currentTime
+    },
+    formatTime(num) {
+      let time = num | 0
+      let minute = time / 60 | 0
+      let second = this._pad(time % 60)
+      return `${minute}:${second}`
+    },
+    _pad(num, n = 2) {
+      let len = num.toString().length
+      while (len < n) {
+        num = '0' + num
+        len++
+      }
+      return num
+    },
+    changePercent(percent) {
+      this.$refs.audio.currentTime = this.currentSong.duration * percent
+      if (!this.playing) {
+        this.changePlaying()
+      }
+    },
     ...mapMutations({
       changePlayState: 'SET_FULL_SCREEN',
-      changePlayingState: 'SET_PLAYING_STATE'
+      changePlayingState: 'SET_PLAYING_STATE',
+      changeCurrentIndex: 'SET_CURRENT_INDEX'
     })
   },
   computed: {
@@ -158,7 +233,13 @@ export default {
     iconStateMini() {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
-    ...mapGetters(['fullScreen', 'playlist', 'currentSong', 'playing'])
+    disabcls() {
+      return this.songReady ? '' : 'disabled'
+    },
+    percent() {
+      return this.currentTime / this.currentSong.duration
+    },
+    ...mapGetters(['fullScreen', 'playlist', 'currentSong', 'playing', 'currentIndex'])
   },
   watch: {
     playing(newY) {
@@ -167,6 +248,9 @@ export default {
         newY ? audio.play() : audio.pause()
       })
     }
+  },
+  components: {
+    progressBar
   }
 }
 </script>
