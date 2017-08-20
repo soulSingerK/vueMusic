@@ -10,14 +10,14 @@
       <li v-for="singers in data" class="list-group" ref="singerGroup">
         <h2 class="list-group-title">{{singers.title}}</h2>
         <ul>
-          <li v-for="singer in singers.singers" class="list-group-item">
+          <li v-for="singer in singers.singers" class="list-group-item" @click="selected(singer)">
             <img v-lazy="singer.img" class="avatar">
             <span class="name">{{singer.name}}</span>
           </li>
         </ul>
       </li>
     </ul>
-    <div class="list-shortcut" @touchstart="onShortcutTouchstart" @touchmove="onShortcutTouchmove">
+    <div class="list-shortcut" @touchstart="onShortcutTouchstart" @touchmove.stop.prevent="onShortcutTouchmove">
       <ul>
         <li class="item" v-for="(item,index) in shotCutList" :data-index="index" :class="{'current': currentIndex === index}">
           {{item}}
@@ -75,6 +75,9 @@ export default {
       let anchorIndex = parseInt(this.touch.anchorIndex) + delta
       this._scrollTo(anchorIndex)
     },
+    selected(item) {
+      this.$emit('select', item)
+    },
     _scrollTo(index) {
       if (!index && index !== 0) {
         return
@@ -129,7 +132,6 @@ export default {
       this.currentIndex = listHeight - 2
     },
     diff(newVal) {
-      console.log(newVal)
       let fixedTop = (newVal > 0 && newVal < FIXED_TITLE) ? newVal - FIXED_TITLE : 0
       if (this.fixedTop === fixedTop) {
         return

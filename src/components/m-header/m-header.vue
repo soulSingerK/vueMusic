@@ -1,7 +1,7 @@
 <template>
   <div class="m-header">
     <div class="icon"></div>
-    <h1 class="text">W-L Music</h1>
+    <h1 class="text">笑着走进余生</h1>
   </div>
 </template>
 
@@ -32,7 +32,7 @@
       display: inline-block
       vertical-align: top
       line-height: 44px
-      font-size: $font-size-large
+      font-size: $font-size-medium-x
     .mine
       position: absolute
       top: 0

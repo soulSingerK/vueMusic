@@ -4,6 +4,7 @@ import App from './App'
 import router from './router'
 import fastclick from 'fastclick'
 import lazyLoad from 'vue-lazyLoad'
+import store from './store'
 
 import 'common/stylus/index.styl'
 
@@ -16,5 +17,6 @@ fastclick.attach(document.body)
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 })
