@@ -37,7 +37,7 @@
           </div>
           <div class="operators">
             <div class="icon i-left">
-              <i class="icon-sequence"></i>
+              <i :class="playMode" @click="changeMode"></i>
             </div>
             <div class="icon i-left" :class="disabcls">
               <i class="icon-prev" @click="prev"></i>
@@ -65,7 +65,9 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i :class="iconStateMini" @click="changePlaying"></i>
+          <progress-circle :radius="radius" :percent="percent">
+            <i :class="iconStateMini" class="icon-mini" @click="changePlaying"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
@@ -81,12 +83,17 @@ import {mapGetters, mapMutations} from 'vuex'
 import {profixStyle} from 'common/js/dom'
 import progressBar from 'base/progress-bar/progress-bar'
 import animations from 'create-keyframe-animation'
+import progressCircle from 'base/progress-circle/progress-circle'
+import {playMode} from 'common/js/config'
+import {getRandList} from 'common/js/utils'
 const transform = profixStyle('transform')
+const radius = 32
 export default {
   data() {
     return {
       songReady: false,
-      currentTime: 0
+      currentTime: 0,
+      radius: radius
     }
   },
   mounted() {
@@ -157,6 +164,24 @@ export default {
     changePlaying() {
       this.changePlayingState(!this.playing)
     },
+    changeMode() {
+      let mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+      let list = []
+      if (mode === playMode.random) {
+        list = getRandList(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this.resetCurrentIndex(list)
+      this.setPlayList(list)
+    },
+    resetCurrentIndex(list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.changeCurrentIndex(index)
+    },
     prev() {
       if (!this.songReady) {
         return
@@ -186,9 +211,6 @@ export default {
       this.songReady = false
     },
     readyPlay() {
-      if (this.playing) {
-        this.$refs.audio.play()
-      }
       this.songReady = true
     },
     error() {
@@ -220,10 +242,15 @@ export default {
     ...mapMutations({
       changePlayState: 'SET_FULL_SCREEN',
       changePlayingState: 'SET_PLAYING_STATE',
-      changeCurrentIndex: 'SET_CURRENT_INDEX'
+      changeCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlayMode: 'SET_PLAY_MODE',
+      setPlayList: 'SET_PLAYLIST'
     })
   },
   computed: {
+    playMode() {
+      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+    },
     cdls() {
       return this.playing ? 'play' : 'pause play'
     },
@@ -239,9 +266,17 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration
     },
-    ...mapGetters(['fullScreen', 'playlist', 'currentSong', 'playing', 'currentIndex'])
+    ...mapGetters(['fullScreen', 'playlist', 'currentSong', 'playing', 'currentIndex', 'mode', 'playlist', 'sequenceList'])
   },
   watch: {
+    currentSong(newSong, oldSong) {
+      if (newSong.id === oldSong.id) {
+        return
+      }
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+      })
+    },
     playing(newY) {
       let audio = this.$refs.audio
       this.$nextTick(() => {
@@ -250,7 +285,8 @@ export default {
     }
   },
   components: {
-    progressBar
+    progressBar,
+    progressCircle
   }
 }
 </script>
@@ -486,9 +522,9 @@ export default {
           color: $color-theme-d
         .icon-mini
           font-size: 32px
-          /*position: absolute
+          position: absolute
           left: 0
-          top: 0*/
+          top: 0
 
   @keyframes rotate
     0%

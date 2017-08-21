@@ -1,5 +1,5 @@
 <template>
-  <div class="progress-bar" ref="progressBar">
+  <div class="progress-bar" ref="progressBar" @click="progressBarClick">
     <div class="bar-inner">
       <div class="progress" ref="progress"></div>
       <div class="progress-btn-wrapper" ref="progressBtn"
@@ -49,6 +49,10 @@ export default {
     _offset(offsetWidth) {
       this.$refs.progress.style.width = offsetWidth + 'px'
       this.$refs.progressBtn.style[transform] = `translate3d(${offsetWidth}px,0,0)`
+    },
+    progressBarClick(e) {
+      this._offset(e.offsetX)
+      this.onProgressTouchEnd()
     },
     changeOffset() {
       return this.$refs.progress.clientWidth / (this.$refs.progressBar.clientWidth - progressBtnWidth)
