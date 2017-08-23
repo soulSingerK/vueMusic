@@ -1,9 +1,10 @@
 export function getRandList(list) {
-  for (let i = 0; i < list.length; i++) {
+  let _list = list.slice()
+  for (let i = 0; i < _list.length; i++) {
     let j = getRandom(0, i)
-    let t = list[j]
-    list[j] = list[i]
-    list[i] = t
+    let t = _list[j]
+    _list[j] = _list[i]
+    _list[i] = t
   }
   return list
 }

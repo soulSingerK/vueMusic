@@ -123,7 +123,7 @@ export default {
       for (let i = 0; i < listHeight.length; i++) {
         let height1 = listHeight[i]
         let height2 = listHeight[i + 1]
-        if (-newY < height2 && -newY > height1) {
+        if (-newY < height2 && -newY >= height1) {
           this.diff = height2 + newY
           this.currentIndex = i
           return

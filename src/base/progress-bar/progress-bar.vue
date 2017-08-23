@@ -38,7 +38,7 @@ export default {
         return
       }
       const delta = e.touches[0].pageX - this.touch.startX
-      let offsetWidth = delta + this.touch.left
+      let offsetWidth = Math.min(Math.max(delta + this.touch.left), this.$refs.progressBar.clientWidth - progressBtnWidth)
       this._offset(offsetWidth)
     },
     onProgressTouchEnd(e) {
@@ -51,7 +51,9 @@ export default {
       this.$refs.progressBtn.style[transform] = `translate3d(${offsetWidth}px,0,0)`
     },
     progressBarClick(e) {
-      this._offset(e.offsetX)
+      const rect = this.$refs.progressBar.getBoundingClientRect()
+      const _offsetWidth = e.pageX - rect.left
+      this._offset(_offsetWidth)
       this.onProgressTouchEnd()
     },
     changeOffset() {

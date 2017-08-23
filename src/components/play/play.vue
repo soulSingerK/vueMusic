@@ -74,7 +74,7 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio" @canplay="readyPlay" @error="error" @timeupdate="timeupdate"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="readyPlay" @error="error" @timeupdate="timeupdate" @ended="endSong"></audio>
   </div>
 </template>
 
@@ -86,6 +86,7 @@ import animations from 'create-keyframe-animation'
 import progressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
 import {getRandList} from 'common/js/utils'
+import Lyric from 'lyric-parser'
 const transform = profixStyle('transform')
 const radius = 32
 export default {
@@ -93,7 +94,8 @@ export default {
     return {
       songReady: false,
       currentTime: 0,
-      radius: radius
+      radius: radius,
+      lyric: null
     }
   },
   mounted() {
@@ -210,6 +212,14 @@ export default {
       this.changeCurrentIndex(index)
       this.songReady = false
     },
+    endSong() {
+      if (this.mode === playMode.loop) {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      } else {
+        this.next()
+      }
+    },
     readyPlay() {
       this.songReady = true
     },
@@ -238,6 +248,11 @@ export default {
       if (!this.playing) {
         this.changePlaying()
       }
+    },
+    getLyric() {
+      this.currentSong.setLyric().then((res) => {
+        this.lyric = new Lyric(res)
+      })
     },
     ...mapMutations({
       changePlayState: 'SET_FULL_SCREEN',
@@ -275,6 +290,7 @@ export default {
       }
       this.$nextTick(() => {
         this.$refs.audio.play()
+        this.getLyric()
       })
     },
     playing(newY) {
