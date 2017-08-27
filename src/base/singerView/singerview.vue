@@ -93,6 +93,9 @@ export default {
     scroll(pos) {
       this.scrollY = pos.y
     },
+    refresh() {
+      this.$refs.scroll && this.$refs.scroll.refresh()
+    },
     _calcHeight() {
       let height = 0
       this.listHeight.push(height)

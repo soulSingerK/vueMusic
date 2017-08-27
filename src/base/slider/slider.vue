@@ -44,6 +44,9 @@ export default{
     })
     window.addEventListener('resize', () => {
       this._setSliderWidth(true)
+      if (this.slider) {
+        this.slider.refresh()
+      }
     }, false)
   },
   methods: {
