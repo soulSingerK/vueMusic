@@ -414,7 +414,7 @@ export default {
         return
       }
       if (this.lyric) {
-        this.lyric.play()
+        this.lyric.stop()
       }
       setTimeout(() => {
         this.$refs.audio.play()

@@ -7,6 +7,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import {debounce} from 'common/js/utils'
   export default {
     props: {
       placeholder: {
@@ -20,9 +21,9 @@
       }
     },
     created() {
-      this.$watch('query', newVal => {
+      this.$watch('query', debounce((newVal) => {
         this.$emit('query', newVal)
-      })
+      }, 200))
     },
     methods: {
       clear() {
@@ -30,6 +31,9 @@
       },
       addQuery(query) {
         this.query = query
+      },
+      blur() {
+        this.$refs.query.blur()
       }
     }
   }

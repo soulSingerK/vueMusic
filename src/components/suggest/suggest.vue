@@ -1,7 +1,13 @@
 <template>
-  <scroll class="suggest" :data="result" :rollup="rollup" @scrollToEnd="searchMore">
+  <scroll class="suggest" 
+          :data="result" 
+          :rollup="rollup" 
+          :beforeScroll="beforeScroll"
+          @beforeScroll="listScroll"
+          @scrollToEnd="searchMore" 
+          ref="suggest">
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="item in result">
+      <li class="suggest-item" v-for="item in result" @click="selectItem(item)">
         <div class="icon">
           <i :class="setIconCls(item)"></i>
         </div>
@@ -11,6 +17,9 @@
       </li>
       <loading v-show="hasMore" title=""></loading>
     </ul>
+    <div class="no-result-wrapper" v-show="!hasMore && !result.length">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
+    </div>
   </scroll>
 </template>
 <script type="text/ecmascript-6">
@@ -19,6 +28,8 @@
   import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
+  import {mapMutations, mapActions} from 'vuex'
+  import noResult from 'base/no-result/no-result'
   const TYPE_SINGER = 'singer'
   const perpage = 20
   export default {
@@ -37,12 +48,31 @@
         page: 1,
         result: [],
         hasMore: true,
+        beforeScroll: true,
         rollup: true
       }
     },
     methods: {
+      selectItem(song) {
+        if (song.type === TYPE_SINGER) {
+          let singer = {
+            id: song.singermid,
+            name: song.singername,
+            img: `https://y.gtimg.cn/music/photo_new/T001R300x300M000${song.singermid}.jpg?max_age=2592000`
+          }
+          this.setSinger(singer)
+          this.$router.push({
+            path: `/search/${singer.id}`
+          })
+        } else {
+          this.insertSong(song)
+        }
+        this.$emit('select')
+      },
       search() {
         this.hasMore = true
+        this.page = 1
+        this.$refs.suggest.scrollTo(0, 0)
         search(this.query, this.page, this.showSinger, perpage).then(res => {
           if (res.code === ERR_OK) {
             this.result = this._handleResult(res.data)
@@ -78,7 +108,7 @@
       },
       chechMore(data) {
         const song = data.song
-        if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
+        if (!song.list.length || (song.curnum + song.curpage * perpage) >= song.totalnum) {
           this.hasMore = false
         }
       },
@@ -100,7 +130,14 @@
           }
         })
         return ret
-      }
+      },
+      listScroll() {
+        this.$emit('listScroll')
+      },
+      ...mapMutations({
+        'setSinger': 'SET_SINGER'
+      }),
+      ...mapActions(['insertSong'])
     },
     watch: {
       query(newQuery) {
@@ -109,7 +146,8 @@
     },
     components: {
       Scroll,
-      Loading
+      Loading,
+      noResult
     }
   }
 </script>
