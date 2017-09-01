@@ -112,6 +112,9 @@
           this.hasMore = false
         }
       },
+      refresh() {
+        this.$refs.suggest.refresh()
+      },
       _handleResult(data) {
         let ret = []
         if (data.zhida && data.zhida.singerid) {

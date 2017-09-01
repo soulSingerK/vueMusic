@@ -3,36 +3,41 @@
     <div class="search-box-wrapper">
       <search-box ref="searchBox" @query="setQuery"></search-box>
     </div>
-    <div class="shortcut-wrapper" v-show="!query">
-      <div class="shortcut">
-        <div class="hot-key">
-          <h1 class="title">热门搜索</h1>
-          <ul>
-            <li class="item" v-for="item in hotKeys" @click="addQueryVal(item.k)">
-              <span>{{item.k}}</span>
-            </li>
-          </ul>
+    <div class="shortcut-wrapper" v-show="!query" ref="shortcutWrapper">
+      <scroll class="shortcut" :data="shortcut" ref="shortcut">
+        <div>
+          <div class="hot-key">
+            <h1 class="title">热门搜索</h1>
+            <ul>
+              <li class="item" v-for="item in hotKeys" @click="addQueryVal(item.k)">
+                <span>{{item.k}}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="search-history" v-show="searchHistory.length">
+            <h1 class="title">
+              <span class="text">搜索历史</span>
+              <span class="clear" @click="cleanSearchHistory">
+                <i class="icon-clear"></i>
+              </span>
+            </h1>
+            <search-list 
+              :searches="searchHistory"
+              @select="addQueryVal"
+              @delete="deleteHistory"
+            ></search-list>
+          </div>
         </div>
-        <div class="search-history" v-show="searchHistory.length">
-          <h1 class="title">
-            <span class="text">搜索历史</span>
-            <span class="clear" @click="clearHistory">
-              <i class="icon-clear"></i>
-            </span>
-          </h1>
-          <search-list 
-            :searches="searchHistory"
-            @select="addQueryVal"
-            @delete="deleteHistory"
-          ></search-list>
-        </div>
-      </div>
+      </scroll>
     </div>
-    <div class="search-result" v-show="query">
+    <div class="search-result" v-show="query" ref="searchResult">
       <suggest :query="query"
                @listScroll="inputBlur" 
-               @select="saveSearch"></suggest>
+               @select="saveSearch"
+               ref="suggest"
+               ></suggest>
     </div>
+    <confirm ref="confirm" title="是否清空所有搜索历史" confirmBtnText="清空"  @confirm="clearHistory"></confirm>
     <router-view></router-view>
   </div>
 </template>
@@ -44,7 +49,11 @@
   import Suggest from 'components/suggest/suggest'
   import {mapActions, mapGetters} from 'vuex'
   import searchList from 'base/search-list/search-list'
+  import Confirm from 'base/confirm/confirm'
+  import Scroll from 'base/scroll/scroll'
+  import {playListMixin} from 'common/js/mixin'
   export default {
+    mixins: [playListMixin],
     created() {
       this._getHotKey()
     },
@@ -55,6 +64,15 @@
       }
     },
     methods: {
+      handlePlayList(list) {
+        let bottom = list.length > 0 ? '60px' : ''
+
+        this.$refs.shortcutWrapper.style.bottom = bottom
+        this.$refs.shortcut.refresh()
+
+        this.$refs.searchResult.style.bottom = bottom
+        this.$refs.suggest.refresh()
+      },
       addQueryVal(query) {
         this.$refs.searchBox.addQuery(query)
       },
@@ -67,6 +85,9 @@
       saveSearch() {
         this.saveSearchHistory(this.query)
       },
+      cleanSearchHistory() {
+        this.$refs.confirm.show()
+      },
       _getHotKey() {
         getHotKey().then((res) => {
           if (res.code === ERR_OK) {
@@ -77,12 +98,26 @@
       ...mapActions(['saveSearchHistory', 'deleteHistory', 'clearHistory'])
     },
     computed: {
-      ...mapGetters(['searchHistory'])
+      ...mapGetters(['searchHistory']),
+      shortcut() {
+        return this.searchHistory.concat(this.hotKeys)
+      }
+    },
+    watch: {
+      query(newQuery, oldQuery) {
+        if (!newQuery) {
+          setTimeout(() => {
+            this.$refs.shortcut.refresh()
+          }, 20)
+        }
+      }
     },
     components: {
       searchBox,
       Suggest,
-      searchList
+      searchList,
+      Confirm,
+      Scroll
     }
   }
 </script>
