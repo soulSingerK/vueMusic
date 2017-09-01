@@ -6,7 +6,7 @@ export function getRandList(list) {
     _list[j] = _list[i]
     _list[i] = t
   }
-  return list
+  return _list
 }
 function getRandom (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)

@@ -93,11 +93,12 @@
             <i :class="iconStateMini" class="icon-mini" @click="changePlaying"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlayList">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <play-list ref="playlist"></play-list>
     <audio :src="currentSong.url" ref="audio" @canplay="readyPlay" @error="error" @timeupdate="timeupdate" @ended="endSong"></audio>
   </div>
 </template>
@@ -109,14 +110,15 @@ import progressBar from 'base/progress-bar/progress-bar'
 import animations from 'create-keyframe-animation'
 import progressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
-import {getRandList} from 'common/js/utils'
 import Lyric from 'lyric-parser'
 import Srcoll from 'base/scroll/scroll'
-
+import PlayList from 'components/playlist/playlist'
+import {playModeMixin} from 'common/js/mixin'
 const transform = profixStyle('transform')
 const transitionDuration = profixStyle('transitionDuration')
 const radius = 32
 export default {
+  mixins: [playModeMixin],
   data() {
     return {
       songReady: false,
@@ -134,6 +136,9 @@ export default {
   methods: {
     changePlay() {
       this.changePlayState(false)
+    },
+    showPlayList() {
+      this.$refs.playlist.show()
     },
     open() {
       this.changePlayState(true)
@@ -201,24 +206,6 @@ export default {
       if (this.lyric) {
         this.lyric.togglePlay()
       }
-    },
-    changeMode() {
-      let mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
-      let list = []
-      if (mode === playMode.random) {
-        list = getRandList(this.sequenceList)
-      } else {
-        list = this.sequenceList
-      }
-      this.resetCurrentIndex(list)
-      this.setPlayList(list)
-    },
-    resetCurrentIndex(list) {
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id
-      })
-      this.changeCurrentIndex(index)
     },
     prev() {
       if (!this.songReady) {
@@ -388,9 +375,6 @@ export default {
     })
   },
   computed: {
-    playMode() {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
-    },
     cdls() {
       return this.playing ? 'play' : 'pause play'
     },
@@ -410,6 +394,9 @@ export default {
   },
   watch: {
     currentSong(newSong, oldSong) {
+      if (!newSong.id) {
+        return
+      }
       if (newSong.id === oldSong.id) {
         return
       }
@@ -431,7 +418,8 @@ export default {
   components: {
     progressBar,
     progressCircle,
-    Srcoll
+    Srcoll,
+    PlayList
   }
 }
 </script>
