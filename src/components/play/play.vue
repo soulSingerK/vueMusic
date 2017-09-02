@@ -99,7 +99,7 @@
       </div>
     </transition>
     <play-list ref="playlist"></play-list>
-    <audio :src="currentSong.url" ref="audio" @canplay="readyPlay" @error="error" @timeupdate="timeupdate" @ended="endSong"></audio>
+    <audio :src="currentSong.url" ref="audio" @play="readyPlay" @error="error" @timeupdate="timeupdate" @ended="endSong"></audio>
   </div>
 </template>
 
@@ -211,8 +211,9 @@ export default {
       if (!this.songReady) {
         return
       }
-      if (this.playlist.length === 0) {
+      if (this.playlist.length === 1) {
         this.loop()
+        return
       } else {
         let index = this.currentIndex - 1
         if (index === -1) {
@@ -230,8 +231,9 @@ export default {
         return
       }
       // 处理当前播放列表只有一首歌的情况
-      if (this.playlist.length === 0) {
+      if (this.playlist.length === 1) {
         this.loop()
+        return
       } else {
         let index = this.currentIndex + 1
         if (index === this.playlist.length) {
@@ -347,6 +349,9 @@ export default {
     },
     getLyric() {
       this.currentSong.setLyric().then((res) => {
+        if (this.currentSong.lyric !== res) {
+          return
+        }
         this.lyric = new Lyric(res, this.handleLyric)
         if (this.playing) {
           this.lyric.play()
@@ -405,7 +410,8 @@ export default {
       if (this.lyric) {
         this.lyric.stop()
       }
-      setTimeout(() => {
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
         this.$refs.audio.play()
         this.getLyric()
       }, 1000)
