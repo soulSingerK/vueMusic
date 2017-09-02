@@ -8,6 +8,10 @@ import store from './store'
 
 import 'common/stylus/index.styl'
 
+/* eslint-disable no-unused-vars */
+// import vConsole from 'vconsole'
+console.log('test')
+
 Vue.use(lazyLoad, {
   loading: require('common/image/default.png')
 })
