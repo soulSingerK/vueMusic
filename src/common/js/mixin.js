@@ -1,4 +1,4 @@
-import {mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 import {getRandList} from 'common/js/utils'
 import {playMode} from 'common/js/config'
 export const playListMixin = {
@@ -60,5 +60,32 @@ export const playModeMixin = {
     playMode() {
       return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
     }
+  }
+}
+
+export const searchMixin = {
+  data() {
+    return {
+      query: '',
+      refreshDelay: 100
+    }
+  },
+  methods: {
+    inputBlur() {
+      this.$refs.searchBox.blur()
+    },
+    saveSearch() {
+      this.saveSearchHistory(this.query)
+    },
+    setQuery(query) {
+      this.query = query
+    },
+    addQueryVal(query) {
+      this.$refs.searchBox.addQuery(query)
+    },
+    ...mapActions(['saveSearchHistory', 'deleteHistory'])
+  },
+  computed: {
+    ...mapGetters(['searchHistory'])
   }
 }

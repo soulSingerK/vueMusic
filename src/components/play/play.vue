@@ -104,7 +104,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import {mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 import {profixStyle} from 'common/js/dom'
 import progressBar from 'base/progress-bar/progress-bar'
 import animations from 'create-keyframe-animation'
@@ -260,6 +260,7 @@ export default {
     },
     readyPlay() {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     error() {
       this.songReady = true
@@ -372,7 +373,8 @@ export default {
       changeCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayMode: 'SET_PLAY_MODE',
       setPlayList: 'SET_PLAYLIST'
-    })
+    }),
+    ...mapActions(['savePlayHistory'])
   },
   computed: {
     cdls() {

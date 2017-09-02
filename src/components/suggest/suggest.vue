@@ -67,7 +67,7 @@
         } else {
           this.insertSong(song)
         }
-        this.$emit('select')
+        this.$emit('select', song)
       },
       search() {
         this.hasMore = true

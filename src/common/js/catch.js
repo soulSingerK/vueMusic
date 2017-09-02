@@ -1,6 +1,9 @@
 import storage from 'good-storage'
 const SEARCH_KEY = '__search__'
 const MAXLENGTH = 15
+
+const PLAY_KEY = '__play__'
+const PLAY_MAXLENGTH = 100
 export function saveSearch(query) {
   let searches = storage.get(SEARCH_KEY, [])
   insetArray(searches, query, (item) => {
@@ -25,6 +28,17 @@ export function deleteSearch(query) {
 export function clearSearch() {
   storage.remove(SEARCH_KEY)
   return []
+}
+export function savePlay(song) {
+  let songs = storage.get(PLAY_KEY, [])
+  insetArray(songs, song, (item) => {
+    return song.id === item.id
+  }, PLAY_MAXLENGTH)
+  storage.set(PLAY_KEY, songs)
+  return songs
+}
+export function loadPlay() {
+  return storage.get(PLAY_KEY, [])
 }
 
 function deleteFromHistory(arr, compare) {

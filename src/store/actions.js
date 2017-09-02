@@ -1,7 +1,7 @@
 import * as types from './mutation-types'
 import {playMode} from 'common/js/config'
 import {getRandList} from 'common/js/utils'
-import {saveSearch, deleteSearch, clearSearch} from 'common/js/catch'
+import {saveSearch, deleteSearch, clearSearch, savePlay} from 'common/js/catch'
 export const selectPlay = function({
   commit,
   state
@@ -123,4 +123,8 @@ export function deleteHistory({commit}, query) {
 
 export function clearHistory({commit}) {
   commit(types.SEARCH_HISTORY, clearSearch())
+}
+
+export function savePlayHistory({commit, state}, song) {
+  commit(types.SET_PLAY_HISTORY, savePlay(song))
 }
