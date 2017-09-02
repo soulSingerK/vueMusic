@@ -1,7 +1,7 @@
 import {
   playMode
 } from 'common/js/config'
-import {getHistory, loadPlay} from 'common/js/catch'
+import {getHistory, loadPlay, loadFavorite} from 'common/js/catch'
 const state = {
   singer: {},
   playing: false,
@@ -13,6 +13,7 @@ const state = {
   disc: {},
   topList: [],
   searchHistory: getHistory(),
-  playHistory: loadPlay()
+  playHistory: loadPlay(),
+  favoriteList: loadFavorite()
 }
 export default state

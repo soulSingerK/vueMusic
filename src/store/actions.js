@@ -1,7 +1,7 @@
 import * as types from './mutation-types'
 import {playMode} from 'common/js/config'
 import {getRandList} from 'common/js/utils'
-import {saveSearch, deleteSearch, clearSearch, savePlay} from 'common/js/catch'
+import {saveSearch, deleteSearch, clearSearch, savePlay, saveFavorite, deleteFavorite} from 'common/js/catch'
 export const selectPlay = function({
   commit,
   state
@@ -127,4 +127,13 @@ export function clearHistory({commit}) {
 
 export function savePlayHistory({commit, state}, song) {
   commit(types.SET_PLAY_HISTORY, savePlay(song))
+}
+
+// 我喜欢的
+export function saveFavoriteList({commit}, song) {
+  commit(types.SET_FAVORITE_LIST, saveFavorite(song))
+}
+
+export function deleteFavoriteList({commit}, song) {
+  commit(types.SET_FAVORITE_LIST, deleteFavorite(song))
 }

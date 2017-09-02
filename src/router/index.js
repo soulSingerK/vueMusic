@@ -7,6 +7,7 @@ import Search from 'components/search/search'
 import SingerDetail from 'components/singerDetail/singerDetail'
 import disc from 'components/disc/disc'
 import topList from 'components/top-list/top-list'
+import UserCenter from 'components/user-center/user-center'
 
 Vue.use(Router)
 
@@ -44,5 +45,8 @@ export default new Router({
       path: ':id',
       component: SingerDetail
     }]
+  }, {
+    path: '/user',
+    component: UserCenter
   }]
 })
